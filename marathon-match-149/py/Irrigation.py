@@ -26,6 +26,7 @@ class Solution:
     def validPoint(self, p:Point) -> bool:
         xn = self.N
         return p.x >= 0 and p.x < xn and p.y >=0 and p.y < xn
+    
     def lessDistance(self,p1,p2):
         return abs(p1.x-p2.x)**2+abs(p1.y-p2.y)**2 <= self.Z**2
     
@@ -93,31 +94,50 @@ class Solution:
     
     def ifNeeded(self,sprinkler:Point) -> bool:
         points = self.allPointsCenter(sprinkler)
+        flag = False
         for p in points:
-            if self.grid[p.x][p.y] == cell.PLANT.value and p in self.notIrrigated:
-                return True
-        return False
+            if self.grid[p.x][p.y] == cell.SPRINKLER.value:
+                return False
+            elif self.grid[p.x][p.y] == cell.PLANT.value and p in self.notIrrigated:
+                flag = True
+        return flag
     
     def getCloseWaterPath(self,source:Point) -> Point:
+        
+        if self.debug: 
+            print('get close water path')
+            print(source)
         qu = deque()
-        qu.append([source])
+        qu.append(source)
         n = self.N
-        waterFound = lambda a : self.grid[a.x][a.y] in [cell.WATER.value,cell.PIPE.value]
+        waterFound = lambda a : self.grid[a.x][a.y] in [cell.WATER.value,cell.PIPE.value, cell.SPRINKLER.value]
         visited = [[False for _ in range(n)]for _ in range(n)]
+        came_from = {}
+        came_from[source] = Point(-1,-1)
+        flag = False
 
+        ans = []
         while qu:
-            path = qu.popleft()
-            src = path[-1]
+            src = qu.popleft()
             visited[src.x][src.y] = True
+
             if waterFound(src):
-                return path
+                flag = True
+                water = src
+                break
             for i in range(4):
-                dd = Point(src.x + dx[i],src.y + dy[i])
-                if self.validPoint(dd) and not visited[dd.x][dd.y] and self.grid[dd.x][dd.y] != cell.PLANT.value:
-                    new_path = list(path)
-                    new_path.append(dd)
-                    qu.append(new_path)
-        return []
+                dd = src + Point(dx[i],dy[i])
+                if self.validPoint(dd) and not visited[dd.x][dd.y] and self.grid[dd.x][dd.y] not in [cell.PLANT.value]:
+                    qu.append(dd)
+                    came_from[dd] = src
+        if not flag:
+            return []
+        while water != Point(-1,-1):
+            ans.append(water)
+            water = came_from[water]
+        ans.reverse()
+        if self.debug: print(*ans)
+        return ans
     
     def layPipe(self,path):
         for j in path:
@@ -127,6 +147,7 @@ class Solution:
     
     def addSprinkler(self,sprinkler):
         points = self.allPointsCenter(sprinkler)
+        self.grid[sprinkler.x][sprinkler.y] = cell.SPRINKLER.value
         for i in points:
             if i in self.notIrrigated:
                 self.notIrrigated.remove(i)
@@ -147,26 +168,28 @@ class Solution:
     def output(self):
         self.findPlantsWaters()
         sprinklers = self.findPotentialSprinklers()
-
+        if self.debug: print('output function')
         count = len(self.plants)
         output = []
 
         for i in sprinklers:
-            if count <= 0:
+            if len(self.notIrrigated) == 0:
                 break
-
             sprinkler = i[1]
+            if self.debug:
+                print(*i,end = '')
             if self.ifNeeded(sprinkler):
-                count -= i[0]
 
                 pathAllSteps = self.getCloseWaterPath(sprinkler)
                 
                 self.layPipe(pathAllSteps)
 
                 path = self.removeSteps(pathAllSteps)
+
                 for i in range(len(path)-1):
                     x,y = path[i],path[i+1]
                     output.append(f"P {x.x} {x.y} {y.x} {y.y}")
+                
                 if self.grid[sprinkler.x][sprinkler.y] == cell.PIPE.value:
                     self.addSprinkler(sprinkler)
                     output.append("S {} {}".format(sprinkler.x,sprinkler.y))

@@ -108,3 +108,30 @@ Additionally you can use the following options:
 The visualizer works in two modes. In regular mode, steps are visualized one after another with a delay specified with the -delay parameter. In paused mode, the next move will be visualized only when you press any key. The space key can be used to switch between regular and paused modes. The default starting mode is regular. You can use the -pause parameter to start in paused mode.
 
 Marathon local testers have many useful options, including running a range of seeds with a single command, running more than one seed at time (multiple threads), controlling time limit, saving input/output/error and loading solution from a file. The usage of these options are described here.
+
+public static final String controlBests = "bests";
+public static final String debug = "debug";
+public static final String delay = "delay";
+public static final String exec = "exec";
+public static final String infoScale = "infoScale";
+public static final String loadSolOutput = "loadSolOutput";
+public static final String noAntialiasing = "noAntialiasing";
+public static final String noOutput = "noOutput";
+public static final String noReplay = "noReplay";
+public static final String noSummary = "noSummary";
+public static final String noVis = "novis";
+public static final String paintInfo = "paintInfo";
+public static final String printRuntime = "printRuntime";
+public static final String saveAll = "saveAll";
+public static final String saveScores = "saveScores";
+public static final String saveSolError = "saveSolError";
+public static final String saveSolInput = "saveSolInput";
+public static final String saveSolOutput = "saveSolOutput";
+public static final String saveVis = "saveVis";
+public static final String screen = "screen";
+public static final String seed = "seed";
+public static final String size = "size";
+public static final String startPaused = "pause";
+public static final String windowPosition = "windowPos";
+public static final String threads = "threads";
+public static final String timeLimit = "timeLimit"
