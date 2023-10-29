@@ -23,6 +23,17 @@ class Point:
     
     def __str__(self):
         return "({},{})".format(self.x,self.y)
+    def __lt__(self, other):
+        return self.x < other.x if self.y == other.y else self.y < other.y
+    def __eq__(self, __value: object) -> bool:
+        return self.x == __value.x and self.y == __value.y
+    def __hash__(self) -> int:
+        return hash(self.x + INF * self.y)
+    def __add__(self,other):
+        return Point(self.x + other.x, self.y + other.y)
+    def __sub__(self,other):
+        return Point(self.x - other.x, self.y - other.y)
+
 dx = [1,0,0,-1]
 dy = [0,1,-1,0]
 INF = 999999
