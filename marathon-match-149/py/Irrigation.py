@@ -78,15 +78,18 @@ class Solution:
         for j in range(n):
             for k in range(n):
                 if scoreGrid[j][k] > 0 and self.grid[j][k] in [cell.PIPE.value, cell.EMPTY.value]:
-                    ans.append((scoreGrid[j][k],Point(j,k)))
-        ans.sort(key=lambda x:-x[0])
+                    dst = min([self.absDist(Point(j,k),m) for m in self.waterSource])
+                    ans.append((scoreGrid[j][k],dst,Point(j,k)))
         
+        ans.sort(key=lambda x:(-x[0],x[1]))
+        #ans = [i[2] for i in ans]
         if self.debug:
             print('final sprinklers list')
             print(len(ans))
             for i in ans:
                 print(*i,end= ' ')
             print()
+        
         return ans
     
     def absDist(self,p1:Point,p2:Point):
@@ -111,7 +114,10 @@ class Solution:
         qu.append(source)
         n = self.N
         waterFound = lambda a : self.grid[a.x][a.y] in [cell.WATER.value,cell.PIPE.value, cell.SPRINKLER.value]
+        
         visited = [[False for _ in range(n)]for _ in range(n)]
+        visited[source.x][source.y] = True
+        for i in self.plants: visited[i.x][i.y] = True 
         came_from = {}
         came_from[source] = Point(-1,-1)
         flag = False
@@ -119,8 +125,6 @@ class Solution:
         ans = []
         while qu:
             src = qu.popleft()
-            visited[src.x][src.y] = True
-
             if waterFound(src):
                 flag = True
                 water = src
@@ -130,11 +134,20 @@ class Solution:
                 if self.validPoint(dd) and not visited[dd.x][dd.y] and self.grid[dd.x][dd.y] not in [cell.PLANT.value]:
                     qu.append(dd)
                     came_from[dd] = src
+                    visited[dd.x][dd.y] = True
+            if self.debug:
+                print('{')
+                for j in qu:
+                    print(j,end = ' ')
+                print('}')
+        
         if not flag:
             return []
+        
         while water != Point(-1,-1):
             ans.append(water)
             water = came_from[water]
+        
         ans.reverse()
         if self.debug: print(*ans)
         return ans
@@ -152,7 +165,7 @@ class Solution:
             if i in self.notIrrigated:
                 self.notIrrigated.remove(i)
         return
-
+    
     def removeSteps(self,path):
         def is_straight(p1,p2,p3):
             return (p3.x-p1.x)*(p2.y-p1.y) == (p3.y-p1.y)*(p2.x-p1.x)
@@ -175,7 +188,7 @@ class Solution:
         for i in sprinklers:
             if len(self.notIrrigated) == 0:
                 break
-            sprinkler = i[1]
+            sprinkler = i[2]
             if self.debug:
                 print(*i,end = '')
             if self.ifNeeded(sprinkler):
